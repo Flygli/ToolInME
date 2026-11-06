@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="panel narrow"><h2>Что вы хотите разместить?</h2>
+  <p class="mut">Форма подстроится под категорию: у каждой свои характеристики.</p>
+  {% for c in categories %}<a class="cat" href="{% url 'create' c.slug %}">{{ c.icon }} {{ c.name }}</a>{% endfor %}
+</div>
+{% endblock %}

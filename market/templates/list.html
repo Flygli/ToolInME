@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="layout">
+<aside class="panel">
+  <h4>Категория</h4>
+  <a class="cat {% if not cat %}on{% endif %}" href="{% url 'list' %}">Все категории</a>
+  {% for c in categories %}<a class="cat {% if cat == c %}on{% endif %}" href="?cat={{ c.slug }}">{{ c.icon }} {{ c.name }}</a>{% endfor %}
+  <form method="get">
+    {% if cat %}<input type="hidden" name="cat" value="{{ cat.slug }}">{% endif %}
+    <h4>Поиск</h4><input name="q" value="{{ g.q }}" placeholder="Название, описание">
+    <h4>Сделка</h4>
+    <select name="deal"><option value="">Любая</option>
+      <option value="rent" {% if g.deal == 'rent' %}selected{% endif %}>Аренда</option>
+      <option value="sale" {% if g.deal == 'sale' %}selected{% endif %}>Покупка</option></select>
+    <h4>Цена, ₽</h4>
+    <div class="row"><input type="number" name="pmin" value="{{ g.pmin }}" placeholder="от"><input type="number" name="pmax" value="{{ g.pmax }}" placeholder="до"></div>
+    <h4>Город</h4><input name="city" value="{{ g.city }}">
+    {% if filters %}<h4>Характеристики</h4>{% endif %}
+    {% for f in filters %}
+      <label>{{ f.attr.label }}</label>
+      {% if f.attr.kind == 'choice' %}
+        <select name="a_{{ f.attr.key }}"><option value="">Любой</option>
+          {% for c in f.attr.choice_list %}<option {% if c == f.value %}selected{% endif %}>{{ c }}</option>{% endfor %}</select>
+      {% elif f.attr.kind == 'number' %}
+        <div class="row"><input type="number" step="any" name="a_{{ f.attr.key }}_min" value="{{ f.min }}" placeholder="от"><input type="number" step="any" name="a_{{ f.attr.key }}_max" value="{{ f.max }}" placeholder="до"></div>
+      {% else %}<input name="a_{{ f.attr.key }}" value="{{ f.value }}">{% endif %}
+    {% endfor %}
+    <h4>Сортировка</h4>
+    <select name="sort"><option value="new">Сначала новые</option>
+      <option value="p1" {% if g.sort == 'p1' %}selected{% endif %}>Дешевле</option>
+      <option value="p2" {% if g.sort == 'p2' %}selected{% endif %}>Дороже</option></select>
+    <button class="btn pri full">Показать</button>
+    <a class="center" href="{% if cat %}?cat={{ cat.slug }}{% else %}{% url 'list' %}{% endif %}">Сбросить</a>
+  </form>
+</aside>
+<section>
+  <p class="mut">Найдено: {{ page_obj.paginator.count }}</p>
+  {% for l in page_obj %}
+  <a class="card" href="{{ l.get_absolute_url }}">
+    <div class="ph">{% if l.photo %}<img src="{{ l.photo.url }}" alt="">{% else %}{{ l.category.icon }}{% endif %}</div>
+    <div><div class="t">{{ l.title }}</div><div class="mut">{{ l.category.name }} · {{ l.city }}</div>
+      <div><span class="tag {{ l.deal }}">{{ l.get_deal_display }}</span>{% for v in l.card_values %}<span class="tag">{{ v.display }}</span>{% endfor %}</div></div>
+    <div class="pr">{{ l.price_label }}</div>
+  </a>
+  {% empty %}<div class="empty">Ничего не найдено. Измените фильтры.</div>{% endfor %}
+  {% if page_obj.has_other_pages %}<div class="pager">
+    {% if page_obj.has_previous %}<a href="?{{ qs }}&page={{ page_obj.previous_page_number }}">← Назад</a>{% endif %}
+    <span>{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?{{ qs }}&page={{ page_obj.next_page_number }}">Вперёд →</a>{% endif %}
+  </div>{% endif %}
+</section>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ l.title }}{% endblock %}
+{% block content %}
+<div class="panel narrow">
+  <a href="{% url 'list' %}?cat={{ l.category.slug }}">← {{ l.category.name }}</a>
+  {% if l.photo %}<img class="big" src="{{ l.photo.url }}" alt="">{% endif %}
+  <h2>{{ l.title }}</h2>
+  <div class="mut">{{ l.city }} · {{ l.created|date:"d.m.Y" }} · {{ l.owner.username }}{% if not l.is_active %} · скрыто{% endif %}</div>
+  <div class="pr left">{{ l.price_label }}</div>
+  <span class="tag {{ l.deal }}">{{ l.get_deal_display }}</span>
+  <table>{% for v in values %}<tr><td>{{ v.attribute.name }}</td><td>{{ v.display }}</td></tr>{% endfor %}</table>
+  {% if l.description %}<p>{{ l.description|linebreaksbr }}</p>{% endif %}
+  {% if user.is_authenticated %}<p><b>Контакт:</b> {{ l.contact }}</p>
+  {% else %}<p class="mut">Чтобы увидеть контакт и отправить заявку, <a href="{% url 'login' %}?next={{ request.path }}">войдите</a>.</p>{% endif %}
+
+  {% if is_owner %}
+    <a class="btn" href="{% url 'edit' l.pk %}">Редактировать</a>
+    <form class="inline" method="post" action="{% url 'delete' l.pk %}" onsubmit="return confirm('Удалить объявление?')">{% csrf_token %}<button>Удалить</button></form>
+    <h3>Заявки ({{ inquiries|length }})</h3>
+    {% for i in inquiries %}<div class="inq"><b>{{ i.author.username }}</b>{% if i.date_from %} · {{ i.date_from|date:"d.m" }}–{{ i.date_to|date:"d.m" }}{% endif %}<br>{{ i.message }}</div>{% empty %}<p class="mut">Пока нет.</p>{% endfor %}
+  {% elif form %}
+    <h3>{% if l.deal == 'rent' %}Заявка на аренду{% else %}Хочу купить{% endif %}</h3>
+    <form method="post">{% csrf_token %}
+      {% if l.deal == 'rent' %}<div class="row">{{ form.date_from }}{{ form.date_to }}</div>{{ form.date_to.errors }}{% endif %}
+      {{ form.message }}
+      <button class="btn pri">Отправить</button>
+    </form>
+  {% endif %}
+</div>
+{% endblock %}

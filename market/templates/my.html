@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="panel narrow">
+  <h2>Мои объявления</h2>
+  {% for l in listings %}<a class="cat" href="{{ l.get_absolute_url }}">{{ l.category.icon }} {{ l.title }} — {{ l.price_label }}{% if not l.is_active %} (скрыто){% endif %}</a>{% empty %}<p class="mut">Пока пусто.</p>{% endfor %}
+  <h2>Заявки мне</h2>
+  {% for i in received %}<div class="inq"><b>{{ i.author.username }}</b> → <a href="{{ i.listing.get_absolute_url }}">{{ i.listing.title }}</a>{% if i.date_from %} · {{ i.date_from|date:"d.m" }}–{{ i.date_to|date:"d.m" }}{% endif %}<br>{{ i.message }}</div>{% empty %}<p class="mut">Нет.</p>{% endfor %}
+  <h2>Мои заявки</h2>
+  {% for i in sent %}<div class="inq"><a href="{{ i.listing.get_absolute_url }}">{{ i.listing.title }}</a> · {{ i.created|date:"d.m.Y" }}</div>{% empty %}<p class="mut">Нет.</p>{% endfor %}
+</div>
+{% endblock %}

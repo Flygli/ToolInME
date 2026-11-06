@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="panel narrow"><h2>{{ title }}: {{ category.icon }} {{ category.name }}</h2>
+<form method="post" enctype="multipart/form-data">{% csrf_token %}
+  {{ form.non_field_errors }}
+  {% for f in form.main %}<label>{{ f.label }}</label>{{ f }}{{ f.errors }}{% endfor %}
+  {% if form.attr_names %}<h3>Характеристики</h3>{% endif %}
+  {% for f in form.attrs %}<label>{{ f.label }}</label>{{ f }}{{ f.errors }}{% endfor %}
+  <button class="btn pri full">Сохранить</button>
+</form></div>
+{% endblock %}
