@@ -6,7 +6,7 @@
 ## Запуск
 ```bash
 python -m venv .venv
-source venv\Scripts\activate
+source .venv/Scripts/activate
 pip install -r requirements.txt
 python manage.py makemigrations market
 python manage.py migrate
