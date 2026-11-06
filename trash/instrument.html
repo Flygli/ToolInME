@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ИнструментДрайв — аренда и продажа инструмента</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f3f4f6;--card:#fff;--tx:#1b1d21;--mut:#6b7280;--bd:#e2e5ea;--ac:#e8590c;--ac2:#fff;--ok:#2b8a3e;--bl:#1971c2}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171a;--card:#1f2226;--tx:#eceef1;--mut:#9aa1ab;--bd:#33373d;--ac:#ff7a2f;--ac2:#161616;--ok:#69db7c;--bl:#74c0fc}}
+:root[data-theme="dark"]{--bg:#15171a;--card:#1f2226;--tx:#eceef1;--mut:#9aa1ab;--bd:#33373d;--ac:#ff7a2f;--ac2:#161616;--ok:#69db7c;--bl:#74c0fc}
+html{color-scheme:light dark;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--card);border-bottom:1px solid var(--bd);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.in{max-width:1100px;margin:0 auto;padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.logo{font-weight:800;font-size:19px;color:var(--ac);margin-right:auto}
+button,select,input,textarea{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:8px 10px}
+button{cursor:pointer}
+.pri{background:var(--ac);color:var(--ac2);border-color:var(--ac);font-weight:600}
+main{max-width:1100px;margin:0 auto;padding:14px;display:grid;grid-template-columns:260px 1fr;gap:14px}
+aside{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;align-self:start}
+aside h4{margin:12px 0 6px;font-size:12px;text-transform:uppercase;color:var(--mut);letter-spacing:.04em}
+aside h4:first-child{margin-top:0}
+.cats button{display:block;width:100%;text-align:left;margin-bottom:4px;border-color:transparent;background:transparent}
+.cats button.on{background:var(--ac);color:var(--ac2);font-weight:600}
+.f{display:flex;gap:6px;margin-bottom:6px}.f>*{flex:1;min-width:0;width:100%}
+label.l{display:block;font-size:13px;color:var(--mut);margin:8px 0 3px}
+.chips{display:flex;gap:6px}.chips button{flex:1;padding:6px}.chips .on{border-color:var(--ac);color:var(--ac);font-weight:600}
+#list{display:grid;gap:10px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;color:var(--mut)}
+.card{display:grid;grid-template-columns:120px 1fr auto;gap:12px;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;cursor:pointer}
+.card:hover{border-color:var(--ac)}
+.ph{background:var(--bg);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:44px;min-height:90px}
+.t{font-weight:700;font-size:16px}
+.mut{color:var(--mut);font-size:13px}
+.tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;border:1px solid var(--bd);margin:4px 4px 0 0}
+.rent{color:var(--bl);border-color:var(--bl)}.sale{color:var(--ok);border-color:var(--ok)}
+.pr{font-weight:800;font-size:18px;text-align:right;white-space:nowrap}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding:calc(20px + env(safe-area-inset-top,0px)) 12px 20px;overflow:auto;z-index:20}
+.md{background:var(--card);border-radius:14px;padding:18px;width:100%;max-width:520px;border:1px solid var(--bd)}
+.md h3{margin:0 0 10px}
+.md input,.md select,.md textarea{width:100%;margin-bottom:6px}
+table{width:100%;border-collapse:collapse;margin:8px 0}td{padding:6px 0;border-bottom:1px solid var(--bd)}td:first-child{color:var(--mut);width:55%}
+.empty{padding:30px;text-align:center;color:var(--mut)}
+@media(max-width:760px){main{grid-template-columns:1fr}.card{grid-template-columns:80px 1fr}.pr{grid-column:2;text-align:left}.ph{font-size:32px;min-height:70px}}
+</style>
+</head>
+<body>
+<header><div class="in"><div class="logo">🛠 ИнструментДрайв</div><span id="who" class="mut"></span><button id="auth">Войти</button><button class="pri" id="add">+ Подать объявление</button></div></header>
+<main>
+<aside>
+<h4>Категория</h4><div class="cats" id="cats"></div>
+<h4>Тип сделки</h4><div class="chips" id="modes"></div>
+<h4>Цена, ₽</h4><div class="f"><input id="pmin" type="number" placeholder="от"><input id="pmax" type="number" placeholder="до"></div>
+<h4>Город</h4><input id="city" placeholder="Любой" style="width:100%">
+<div id="attrs"></div>
+<button id="reset" style="width:100%;margin-top:12px">Сбросить фильтры</button>
+</aside>
+<section><div class="top"><span id="cnt"></span><select id="sort"><option value="new">Сначала новые</option><option value="p1">Дешевле</option><option value="p2">Дороже</option></select></div><div id="list"></div></section>
+</main>
+<div id="modal"></div>
+<script>
+var CATS={
+drill:{name:"Дрели и шуруповёрты",ic:"🔩",f:[
+{k:"type",l:"Тип",t:"s",o:["Дрель","Ударная дрель","Шуруповёрт","Дрель-миксер"]},
+{k:"brand",l:"Бренд",t:"s",o:["Bosch","Makita","DeWalt","Metabo","Hilti","Интерскол"]},
+{k:"pw",l:"Питание",t:"s",o:["Сеть 220 В","Аккумулятор"]},
+{k:"w",l:"Мощность",t:"n",u:"Вт"},{k:"ch",l:"Патрон",t:"n",u:"мм"},{k:"kg",l:"Вес",t:"n",u:"кг"}]},
+perf:{name:"Перфораторы",ic:"⛏",f:[
+{k:"type",l:"Патрон",t:"s",o:["SDS-plus","SDS-max"]},
+{k:"brand",l:"Бренд",t:"s",o:["Bosch","Makita","DeWalt","Metabo","Hilti","Интерскол"]},
+{k:"pw",l:"Питание",t:"s",o:["Сеть 220 В","Аккумулятор"]},
+{k:"w",l:"Мощность",t:"n",u:"Вт"},{k:"j",l:"Энергия удара",t:"n",u:"Дж"},{k:"kg",l:"Вес",t:"n",u:"кг"}]},
+grind:{name:"Болгарки (УШМ)",ic:"⚙",f:[
+{k:"brand",l:"Бренд",t:"s",o:["Bosch","Makita","DeWalt","Metabo","Hilti","Интерскол"]},
+{k:"d",l:"Диаметр диска",t:"s",o:["115 мм","125 мм","150 мм","180 мм","230 мм"]},
+{k:"pw",l:"Питание",t:"s",o:["Сеть 220 В","Аккумулятор"]},
+{k:"w",l:"Мощность",t:"n",u:"Вт"},{k:"rpm",l:"Обороты",t:"n",u:"об/мин"}]},
+saw:{name:"Пилы",ic:"🪚",f:[
+{k:"type",l:"Тип",t:"s",o:["Циркулярная","Лобзик","Сабельная","Цепная","Торцовочная"]},
+{k:"brand",l:"Бренд",t:"s",o:["Bosch","Makita","DeWalt","Metabo","Stihl","Интерскол"]},
+{k:"pw",l:"Питание",t:"s",o:["Сеть 220 В","Аккумулятор","Бензин"]},
+{k:"w",l:"Мощность",t:"n",u:"Вт"},{k:"cut",l:"Глубина реза",t:"n",u:"мм"}]},
+gen:{name:"Генераторы",ic:"⚡",f:[
+{k:"fuel",l:"Топливо",t:"s",o:["Бензин","Дизель","Инвертор"]},
+{k:"brand",l:"Бренд",t:"s",o:["Honda","Champion","Huter","Fubag","Hyundai"]},
+{k:"ph",l:"Фазы",t:"s",o:["1 фаза","3 фазы"]},
+{k:"kw",l:"Мощность",t:"n",u:"кВт"},{k:"tank",l:"Бак",t:"n",u:"л"}]}
+};
+var $=function(i){return document.getElementById(i)};
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function ld(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var seed=[
+{cat:"drill",title:"Bosch GSB 18V-55 ударный",mode:"rent",price:600,city:"Москва",a:{type:"Ударная дрель",brand:"Bosch",pw:"Аккумулятор",w:550,ch:13,kg:1.8},d:"Два аккумулятора, зарядка, кейс. Залог 5000 ₽.",owner:"demo",contact:"+7 900 111-22-33"},
+{cat:"drill",title:"Makita DF333D шуруповёрт",mode:"sale",price:7900,city:"Казань",a:{type:"Шуруповёрт",brand:"Makita",pw:"Аккумулятор",w:300,ch:10,kg:1.2},d:"Новый, в упаковке, гарантия 1 год.",owner:"demo",contact:"@kazan_tools"},
+{cat:"perf",title:"Hilti TE 7-C SDS-plus",mode:"rent",price:1200,city:"Москва",a:{type:"SDS-plus",brand:"Hilti",pw:"Сеть 220 В",w:800,j:3.2,kg:3.7},d:"Бур 12 мм в комплекте, чистый после смены.",owner:"demo",contact:"+7 900 111-22-33"},
+{cat:"perf",title:"Makita HR5212C SDS-max",mode:"sale",price:42000,city:"Санкт-Петербург",a:{type:"SDS-max",brand:"Makita",pw:"Сеть 220 В",w:1510,j:20,kg:8.1},d:"Б/у, один сезон, оригинал.",owner:"demo",contact:"+7 911 555-44-33"},
+{cat:"grind",title:"DeWalt DWE4257 125 мм",mode:"rent",price:500,city:"Москва",a:{brand:"DeWalt",d:"125 мм",pw:"Сеть 220 В",w:1200,rpm:11800},d:"Защитный кожух, два диска.",owner:"demo",contact:"@msk_rent"},
+{cat:"grind",title:"Metabo W 18 LTX 150",mode:"sale",price:12500,city:"Казань",a:{brand:"Metabo",d:"150 мм",pw:"Аккумулятор",w:1100,rpm:9600},d:"Без АКБ, состояние отличное.",owner:"demo",contact:"@kazan_tools"},
+{cat:"saw",title:"Makita HS7601 циркулярная",mode:"rent",price:700,city:"Москва",a:{type:"Циркулярная",brand:"Makita",pw:"Сеть 220 В",w:1200,cut:66},d:"Диск на 24 зуба.",owner:"demo",contact:"+7 900 111-22-33"},
+{cat:"gen",title:"Champion GG6500 бензиновый",mode:"rent",price:2500,city:"Тверь",a:{fuel:"Бензин",brand:"Champion",ph:"1 фаза",kw:5.5,tank:25},d:"Заправлен, подходит для стройплощадки.",owner:"demo",contact:"+7 920 000-11-22"}
+];
+var L=ld("tr_l",null);if(!L){L=seed.map(function(x,i){x.id=i+1;x.ts=Date.now()-i*1e6;return x});sv("tr_l",L)}
+var U=ld("tr_u",{demo:"demo"}),me=ld("tr_me",null);
+var S={cat:"",mode:"",a:{}};
+
+function renderCats(){
+var h='<button data-c="" class="'+(S.cat?"":"on")+'">Все категории</button>';
+for(var c in CATS)h+='<button data-c="'+c+'" class="'+(S.cat==c?"on":"")+'">'+CATS[c].ic+" "+CATS[c].name+"</button>";
+$("cats").innerHTML=h;
+var m=[["","Все"],["rent","Аренда"],["sale","Купить"]];
+$("modes").innerHTML=m.map(function(x){return'<button data-m="'+x[0]+'" class="'+(S.mode==x[0]?"on":"")+'">'+x[1]+"</button>"}).join("");
+var a="";
+if(S.cat){a="<h4>Характеристики</h4>";CATS[S.cat].f.forEach(function(f){
+a+='<label class="l">'+f.l+(f.u?", "+f.u:"")+"</label>";
+if(f.t=="s")a+='<select data-k="'+f.k+'" data-s="eq" style="width:100%"><option value="">Любой</option>'+f.o.map(function(o){return"<option>"+esc(o)+"</option>"}).join("")+"</select>";
+else a+='<div class="f"><input type="number" placeholder="от" data-k="'+f.k+'" data-s="min"><input type="number" placeholder="до" data-k="'+f.k+'" data-s="max"></div>'})}
+$("attrs").innerHTML=a}
+
+function renderList(){
+var pmin=+$("pmin").value||0,pmax=+$("pmax").value||1e12,city=$("city").value.trim().toLowerCase();
+var r=L.filter(function(x){
+if(S.cat&&x.cat!=S.cat)return false;if(S.mode&&x.mode!=S.mode)return false;
+if(x.price<pmin||x.price>pmax)return false;
+if(city&&x.city.toLowerCase().indexOf(city)<0)return false;
+for(var k in S.a){var v=S.a[k];if(v==="")continue;var p=k.split("|"),val=x.a[p[0]];
+if(p[1]=="eq"&&val!=v)return false;
+if(p[1]=="min"&&!(val>=+v))return false;
+if(p[1]=="max"&&!(val<=+v))return false}
+return true});
+var s=$("sort").value;r.sort(function(a,b){return s=="p1"?a.price-b.price:s=="p2"?b.price-a.price:b.ts-a.ts});
+$("cnt").textContent="Найдено: "+r.length;
+$("list").innerHTML=r.length?r.map(function(x){var c=CATS[x.cat],f=c.f;
+var tags=f.slice(0,4).map(function(q){var v=x.a[q.k];return v===undefined||v===""?"":'<span class="tag">'+esc(v)+(q.u?" "+q.u:"")+"</span>"}).join("");
+return'<div class="card" data-id="'+x.id+'"><div class="ph">'+c.ic+'</div><div><div class="t">'+esc(x.title)+'</div><div class="mut">'+c.name+" · "+esc(x.city)+'</div><div><span class="tag '+x.mode+'">'+(x.mode=="rent"?"Аренда":"Продажа")+"</span>"+tags+'</div></div><div class="pr">'+x.price.toLocaleString("ru-RU")+" ₽"+(x.mode=="rent"?'<div class="mut">в сутки</div>':"")+"</div></div>"}).join(""):'<div class="empty">Ничего не найдено. Измените фильтры.</div>'}
+
+function modal(h){$("modal").innerHTML='<div class="ov" id="ov"><div class="md">'+h+"</div></div>"}
+function closeM(){$("modal").innerHTML=""}
+function bar(){$("who").textContent=me?"👤 "+me:"";$("auth").textContent=me?"Выйти":"Войти"}
+
+function detail(id){var x=L.find(function(q){return q.id==id}),c=CATS[x.cat];
+var rows=c.f.map(function(f){var v=x.a[f.k];return v===undefined||v===""?"":"<tr><td>"+f.l+"</td><td>"+esc(v)+(f.u?" "+f.u:"")+"</td></tr>"}).join("");
+modal("<h3>"+esc(x.title)+'</h3><div class="mut">'+c.name+" · "+esc(x.city)+'</div><div class="pr" style="text-align:left;margin:8px 0">'+x.price.toLocaleString("ru-RU")+" ₽"+(x.mode=="rent"?" / сутки":"")+"</div><table>"+rows+"</table><p>"+esc(x.d)+"</p>"+
+(me?'<p><b>Контакт:</b> '+esc(x.contact)+"</p>":'<p class="mut">Войдите, чтобы увидеть контакты продавца.</p><button class="pri" id="mlog">Войти</button>')+
+(me&&me==x.owner?' <button id="del" data-id="'+x.id+'">Удалить</button>':"")+' <button id="mc">Закрыть</button>')}
+
+function authForm(){modal('<h3>Вход / регистрация</h3><input id="lu" placeholder="Логин"><input id="lp" type="password" placeholder="Пароль"><div class="mut" id="le" style="margin-bottom:8px">Нет аккаунта — он создастся автоматически. Демо: demo / demo</div><button class="pri" id="lgo">Продолжить</button> <button id="mc">Отмена</button>')}
+
+function addForm(){if(!me){authForm();return}
+var o=Object.keys(CATS).map(function(c){return'<option value="'+c+'">'+CATS[c].name+"</option>"}).join("");
+modal('<h3>Новое объявление</h3><select id="nc">'+o+'</select><select id="nm"><option value="rent">Сдаю в аренду (цена за сутки)</option><option value="sale">Продаю</option></select><input id="nt" placeholder="Название, например Bosch GBH 2-26"><input id="np" type="number" placeholder="Цена, ₽"><input id="ncity" placeholder="Город"><input id="nco" placeholder="Контакт (телефон / Telegram)"><div id="na"></div><textarea id="nd" rows="3" placeholder="Описание, комплектация, залог"></textarea><button class="pri" id="ngo">Опубликовать</button> <button id="mc">Отмена</button>');
+newAttrs()}
+function newAttrs(){var c=CATS[$("nc").value];$("na").innerHTML=c.f.map(function(f){
+return f.t=="s"?'<select data-a="'+f.k+'"><option value="">'+f.l+"</option>"+f.o.map(function(o){return"<option>"+esc(o)+"</option>"}).join("")+"</select>":'<input type="number" step="any" data-a="'+f.k+'" placeholder="'+f.l+", "+f.u+'">'}).join("")}
+
+document.addEventListener("click",function(e){var t=e.target,b;
+if(t.id=="ov"||t.id=="mc"){closeM();return}
+if(b=t.closest("[data-c]")){S.cat=b.dataset.c;S.a={};renderCats();renderList();return}
+if(b=t.closest("[data-m]")){S.mode=b.dataset.m;renderCats();renderList();return}
+if(b=t.closest(".card")){detail(b.dataset.id);return}
+if(t.id=="mlog"){authForm();return}
+if(t.id=="auth"){if(me){me=null;sv("tr_me",null);bar()}else authForm();return}
+if(t.id=="add"){addForm();return}
+if(t.id=="reset"){S={cat:"",mode:"",a:{}};["pmin","pmax","city"].forEach(function(i){$(i).value=""});renderCats();renderList();return}
+if(t.id=="del"){L=L.filter(function(q){return q.id!=t.dataset.id});sv("tr_l",L);closeM();renderList();return}
+if(t.id=="lgo"){var u=$("lu").value.trim(),p=$("lp").value;
+if(!u||!p){$("le").textContent="Введите логин и пароль";return}
+if(U[u]===undefined){U[u]=p;sv("tr_u",U)}else if(U[u]!==p){$("le").textContent="Неверный пароль";return}
+me=u;sv("tr_me",me);bar();closeM();return}
+if(t.id=="ngo"){var tt=$("nt").value.trim(),pp=+$("np").value;
+if(!tt||!pp){alert("Укажите название и цену");return}
+var a={};document.querySelectorAll("[data-a]").forEach(function(el){if(el.value!=="")a[el.dataset.a]=el.tagName=="INPUT"?+el.value:el.value});
+L.unshift({id:Date.now(),ts:Date.now(),cat:$("nc").value,mode:$("nm").value,title:tt,price:pp,city:$("ncity").value.trim()||"—",contact:$("nco").value.trim()||"—",d:$("nd").value,a:a,owner:me});
+sv("tr_l",L);closeM();renderList()}
+});
+document.addEventListener("input",function(e){var t=e.target;
+if(t.dataset&&t.dataset.k){S.a[t.dataset.k+"|"+t.dataset.s]=t.value;renderList()}
+else if(t.id=="pmin"||t.id=="pmax"||t.id=="city")renderList()});
+document.addEventListener("change",function(e){if(e.target.id=="sort")renderList();if(e.target.id=="nc")newAttrs()});
+renderCats();renderList();bar();
+</script>
+</body>
+</html>
